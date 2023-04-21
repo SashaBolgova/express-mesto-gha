@@ -5,7 +5,7 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
@@ -18,7 +18,7 @@ module.exports.createCard = (req, res) => {
 module.exports.getCards = (req, res) => {
   Card.find({})
   .populate(['owner', 'likes'])
-    .then((cards) => res.status(200).send(cards))
+    .then((cards) => res.status(200).send({ data: cards }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
