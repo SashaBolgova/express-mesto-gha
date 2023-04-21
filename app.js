@@ -5,7 +5,7 @@ const { userRouter } = require('./routes/users');
 const { cardRouter } = require('./routes/cards')
 
 // Слушаем 3000 порт
-const { PORT = 3003, LOCALHOST = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const { PORT = 3000, LOCALHOST = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
