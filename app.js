@@ -23,10 +23,10 @@ mongoose.connect(LOCALHOST, {
  useNewUrlParser: true
 });
 
-app.use(userRouter);
 app.use(cardRouter);
+app.use(userRouter);
 
-app.use('*', (req, res) => res.status(400).send({message:'Страница не найдена'}));
+app.use('*', (req, res) => res.status(404).send({message:'Страница не найдена'}));
 
 app.listen(PORT, () => {
     // Если всё работает, консоль покажет, какой порт приложение слушает
