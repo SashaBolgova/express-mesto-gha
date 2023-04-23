@@ -23,7 +23,7 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findById({ _id: req.params.cardId })
+  Card.findByIdAndRemove({ _id: req.params.cardId })
   .orFail(() => {
     throw new Error('Карточка не найдена');
   })

@@ -6,9 +6,8 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
-module.exports.getUser = (req, res) => {
-  const { userId } = req.params;
-
+module.exports.getUserId = (req, res) => {
+  const { userId } = req.params
   User.findById(userId)
     .orFail(() => {
       throw new Error('Пользователь не найден');
@@ -16,9 +15,9 @@ module.exports.getUser = (req, res) => {
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(404).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(400).send({ message: 'Пользователь не найден' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
       }
