@@ -47,25 +47,27 @@ module.exports.createUser = (req, res, next) => {
   } = req.body;
 
   bcrypt.hash(req.body.password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
-    .then((user) => res.status(201).send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные: ${err}`));
-      } else if (err.code === 11000) {
-        next(new ConflictError('Данный еmail уже зарегистрирован'));
-      } else {
-        next(err);
-      }
+    .then((hash) => {
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
+        .then((user) => res.status(201).send({ data: user }))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            next(new BadRequestError(`Переданы некорректные данные: ${err}`));
+          } else if (err.code === 11000) {
+            next(new ConflictError('Данный еmail уже зарегистрирован'));
+          } else {
+            next(err);
+          }
+        });
     });
 };
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
@@ -73,9 +75,11 @@ module.exports.login = (req, res, next) => {
         { expiresIn: '7d' },
       );
       res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
         httpOnly: true,
+        sameSite: true,
       })
-        .send({ token });
+        .send({ message: 'Вы успешно авторизовались' });
     })
     .catch(next);
 };
