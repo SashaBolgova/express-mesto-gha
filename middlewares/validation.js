@@ -1,13 +1,4 @@
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
-
-const isUrl = (link) => {
-  const result = validator.isURL(link);
-  if (result) {
-    return link;
-  }
-  throw new Error('Невалидный URL');
-};
 
 const validateSignup = celebrate({
   body: Joi.object().keys({
@@ -16,7 +7,7 @@ const validateSignup = celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().regex(
-      /^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*/,
+      /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)/,
     ),
   }),
 });
@@ -30,7 +21,7 @@ const validateSignIn = celebrate({
 
 const validateUserId = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().hex().length(24),
+    userId: Joi.string().length(24).required(),
   }),
 });
 
@@ -43,20 +34,20 @@ const validateUserUpdate = celebrate({
 
 const validateAvatarUpdate = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().regex(/^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*/),
+    avatar: Joi.string().required().regex(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)/),
   }),
 });
 
 const validateCardCreate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().custom(isUrl),
+    link: Joi.string().required().regex(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)/),
   }),
 });
 
 const validateCardId = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24),
+    cardId: Joi.string().required().hex().length(24),
   }),
 });
 
