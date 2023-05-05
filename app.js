@@ -26,13 +26,12 @@ mongoose.connect(LOCALHOST, {
   useNewUrlParser: true,
 });
 
+app.use(cardRouter);
+app.use(userRouter);
 userRouter.post('/singin', validateSignIn, login);
 userRouter.post('/signup', validateSignup, createUser);
 
 app.use(auth);
-app.use(cardRouter);
-app.use(userRouter);
-
 app.use('*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
 
 app.use(errorHandler);
