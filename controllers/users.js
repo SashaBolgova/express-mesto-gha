@@ -19,7 +19,7 @@ module.exports.getUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Нет пользователя с таким id');
       }
-      res.send(user);
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -30,13 +30,12 @@ module.exports.getUser = (req, res, next) => {
 };
 
 module.exports.getUserInfo = (req, res, next) => {
-  const { _id } = req.user;
-  User.findById(_id)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
+        throw new NotFoundError('Данные пользователя не найдены');
       }
-      res.status(200).send({ data: user });
+      res.send({ data: user });
     })
     .catch(next);
 };
@@ -54,7 +53,7 @@ module.exports.createUser = (req, res, next) => {
         .then((user) => res.status(201).send({ data: user }))
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            next(new BadRequestError(`Переданы некорректные данные: ${err}`));
+            next(new BadRequestError('Переданы некорректные данные'));
           } else if (err.code === 11000) {
             next(new ConflictError('Данный еmail уже зарегистрирован'));
           } else {
@@ -74,7 +73,7 @@ module.exports.login = (req, res, next) => {
         'super-strong-secret',
         { expiresIn: '7d' },
       );
-      res.cookie('jwt', token, {
+      res.status(200).cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,
@@ -96,13 +95,13 @@ module.exports.updateUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      res.send(user);
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else if (err.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные при обновлении профиля: ${err}`));
+        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
       } else {
         next(err);
       }
@@ -121,7 +120,7 @@ module.exports.updateAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      res.send(user);
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {

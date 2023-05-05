@@ -8,10 +8,10 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные при создании карточки: ${err}`));
+        next(new BadRequestError('Переданы некорректные данные при создании карточки'));
       } else {
         next(err);
       }
@@ -21,7 +21,7 @@ module.exports.createCard = (req, res, next) => {
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => res.send(cards))
     .catch(next);
 };
 
@@ -36,7 +36,7 @@ module.exports.deleteCard = (req, res, next) => {
       } else {
         card.deleteOne()
           .then((myCard) => {
-            res.status(200).send({ data: myCard });
+            res.status(200).send(myCard);
           })
           .catch((err) => {
             if (err.name === 'CastError') {
