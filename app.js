@@ -11,7 +11,7 @@ const {
 const {
   validateSignup, validateSignIn,
 } = require('./middlewares/validation');
-const auth = require('./middlewares/auth');
+
 const errorHandler = require('./middlewares/errorHandler');
 const NotFoundError = require('./errors/not-found-err');
 
@@ -33,7 +33,7 @@ app.use(userRouter);
 app.use(cardRouter);
 
 app.use('*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
-app.use(auth);
+
 app.use(errors());
 app.use(errorHandler);
 

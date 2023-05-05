@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
-const isEmail = require('validator/lib/isEmail');
-const isURL = require('validator/lib/isURL');
 const bcrypt = require('bcryptjs');
+const validator = require('validator');
 
 const UnauthorizedError = require('../errors/unauthorized-err');
+
+const urlRegExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)/;
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,17 +23,23 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-      validate: [isURL, 'Поле "avatar" неверно заполнено'],
+      validate: {
+        validator: (avatar) => urlRegExp.test(avatar),
+        message: 'Некорректный URL',
+      },
     },
     email: {
       type: String,
       required: [true, 'Поле email  должно быть заполнено'],
       unique: true,
-      validate: [isEmail, 'Поле "email" неверно заполнено'],
+      validate: {
+        validator: (email) => validator.isEmail(email),
+        message: 'Почта некорректна',
+      },
     },
     password: {
       type: String,
-      required: [true, 'Поле пароль должно быть заполнено'],
+      required: true,
       select: false,
     },
   },
@@ -45,13 +52,13 @@ userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Данные пользователя не найдены');
+        return Promise.reject(new UnauthorizedError('Данные пользователя не найдены'));
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError('Данные пользователя не найдены');
+            return Promise.reject(new UnauthorizedError('Данные пользователя не найдены'));
           }
 
           return user;
