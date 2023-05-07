@@ -12,6 +12,8 @@ const {
   validateSignup, validateSignIn,
 } = require('./middlewares/validation');
 
+const { auth } = require('./middlewares/auth');
+
 const errorHandler = require('./middlewares/errorHandler');
 const NotFoundError = require('./errors/not-found-err');
 
@@ -29,12 +31,14 @@ mongoose.connect(LOCALHOST, {
 userRouter.post('/signin', validateSignIn, login);
 userRouter.post('/signup', validateSignup, createUser);
 
+app.use(errors());
+
+app.use(auth, userRouter);
 app.use(userRouter);
-app.use(cardRouter);
+app.use(auth, cardRouter);
 
 app.use('*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
 
-app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {

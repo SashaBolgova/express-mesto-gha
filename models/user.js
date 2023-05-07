@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const { default: isEmail } = require('validator/lib/isEmail');
 
 const UnauthorizedError = require('../errors/unauthorized-err');
 
-const urlRegExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)/;
+const urlRegExp = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?#?$/;
 
 const userSchema = new mongoose.Schema(
   {
@@ -46,9 +47,16 @@ const userSchema = new mongoose.Schema(
   {
     versionKey: false,
   },
+  {
+    toJSON: { useProjection: true }, toObject: { useProjection: true },
+  },
 );
 
 userSchema.statics.findUserByCredentials = function (email, password) {
+  const isEmailValid = isEmail(email);
+  if (!isEmailValid) {
+    return Promise.reject(new Error('Неправильные почта или пароль'));
+  }
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {

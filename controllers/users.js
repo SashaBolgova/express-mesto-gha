@@ -8,7 +8,7 @@ const ConflictError = require('../errors/conflict-err');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => res.status(200).send({ data: users }))
     .catch(next);
 };
 
@@ -30,7 +30,8 @@ module.exports.getUser = (req, res, next) => {
 };
 
 module.exports.getUserInfo = (req, res, next) => {
-  User.findById(req.user._id)
+  const userId = req.user._id;
+  User.findById(userId)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Данные пользователя не найдены');
@@ -70,15 +71,15 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        'super-strong-secret',
+        'secret',
         { expiresIn: '7d' },
       );
-      res.status(200).cookie('jwt', token, {
+      res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,
-      })
-        .send({ message: 'Вы успешно авторизовались' });
+      });
+      res.status(200).send({ message: 'Вы успешно авторизовались' });
     })
     .catch(next);
 };
