@@ -71,15 +71,15 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        'secret',
+        'some-secret-key',
         { expiresIn: '7d' },
       );
-      res.cookie('jwt', token, {
+      res.status(200).cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,
-      });
-      res.status(200).send({ message: 'Вы успешно авторизовались' });
+      })
+        .send({ message: 'Вы успешно авторизовались' });
     })
     .catch(next);
 };
