@@ -74,12 +74,9 @@ module.exports.login = (req, res, next) => {
         'some-secret-key',
         { expiresIn: '7d' },
       );
-      res.status(200).cookie('jwt', token, {
-        maxAge: 3600000 * 24 * 7,
-        httpOnly: true,
-        sameSite: true,
-      })
-        .send({ message: 'Вы успешно авторизовались' });
+      res.set('authorization', `Bearer ${token}`);
+      res.send({ token });
+      res.send({ message: 'Вы успешно авторизовались' });
     })
     .catch(next);
 };
@@ -133,3 +130,4 @@ module.exports.updateAvatar = (req, res, next) => {
       }
     });
 };
+
