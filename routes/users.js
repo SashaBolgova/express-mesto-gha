@@ -12,15 +12,15 @@ const {
   validateUserId, validateUserUpdate, validateAvatarUpdate,
 } = require('../middlewares/validation');
 
-userRouter.get('/users', getUsers);
+userRouter.get('/', getUsers);
 
-userRouter.get('/users/me', getUserInfo);
+userRouter.get('/me', getUserInfo);
 
-userRouter.get('/users/:userId', validateUserId, getUser);
+userRouter.get('/:userId', validateUserId, getUser);
 
-userRouter.patch('/users/me', validateUserUpdate, updateUser);
+userRouter.patch('/me', validateUserUpdate, updateUser);
 
-userRouter.patch('/users/me/avatar', validateAvatarUpdate, updateAvatar);
+userRouter.patch('/me/avatar', validateAvatarUpdate, updateAvatar);
 
 userRouter.use(errors());
 

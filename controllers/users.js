@@ -24,8 +24,11 @@ module.exports.getUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
+      } else if (err.message === 'Пользователь не найден') {
+        next(new NotFoundError('Пользователь не найден'));
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
-      next(err);
     });
 };
 
@@ -75,18 +78,15 @@ module.exports.login = (req, res, next) => {
         { expiresIn: '7d' },
       );
       res.set('authorization', `Bearer ${token}`);
-      res.send({ token });
       res.send({ message: 'Вы успешно авторизовались' });
     })
     .catch(next);
 };
 
-module.exports.updateUser = (req, res, next) => {
-  const { name, about } = req.body;
-
+function updateInfo(req, res, next, data) {
   User.findByIdAndUpdate(
     req.user._id,
-    { name, about },
+    data,
     { new: true, runValidators: true },
   )
     .then((user) => {
@@ -95,39 +95,17 @@ module.exports.updateUser = (req, res, next) => {
       }
       res.status(200).send({ data: user });
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
+}
+
+module.exports.updateUser = (req, res, next) => {
+  const { name, about } = req.body;
+
+  updateInfo(req, res, next, { name, about });
 };
 
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    { new: true, runValidators: true },
-  )
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Запрашиваемый пользователь не найден');
-      }
-      res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else if (err.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные при обновлении профиля: ${err}`));
-      } else {
-        next(err);
-      }
-    });
+  updateInfo(req, res, next, { avatar });
 };
-

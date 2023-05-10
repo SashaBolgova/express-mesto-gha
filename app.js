@@ -3,8 +3,7 @@ const { errors } = require('celebrate');
 
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { userRouter } = require('./routes/users');
-const { cardRouter } = require('./routes/cards');
+const { userRouter, cardRouter } = require('./routes/index');
 const {
   createUser, login,
 } = require('./controllers/users');
@@ -31,8 +30,8 @@ app.post('/signup', validateSignup, createUser);
 app.post('/signin', validateSignIn, login);
 
 app.use(auth);
-app.use(userRouter);
-app.use(cardRouter);
+app.use('/users', userRouter);
+app.use('/cards', cardRouter);
 
 app.use('*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
 app.use(errors());
